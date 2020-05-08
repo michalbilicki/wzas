@@ -38,7 +38,7 @@ public class PositionServiceImpl implements PositionService {
     @Override
     public void setCurrentPosition(PointDto currentPosition, String login) throws AccountDoesNotExistException {
         Optional<PositionEntity> entityOptional = locationRepository.findByAccount(login);
-        if(entityOptional.isPresent()){
+        if(!entityOptional.isPresent()){
             throw new AccountDoesNotExistException("accountDoesNotExists");
         }
 
@@ -51,7 +51,7 @@ public class PositionServiceImpl implements PositionService {
     @Override
     public void setDestinationPosition(PointDto destinationPosition, String login) throws AccountDoesNotExistException {
         Optional<PositionEntity> entityOptional = locationRepository.findByAccount(login);
-        if(entityOptional.isPresent()){
+        if(!entityOptional.isPresent()){
             throw new AccountDoesNotExistException("accountDoesNotExists");
         }
 
@@ -63,7 +63,7 @@ public class PositionServiceImpl implements PositionService {
     @Override
     public void removeDestinationPosition(String login) throws AccountDoesNotExistException{
         Optional<PositionEntity> entityOptional = locationRepository.findByAccount(login);
-        if(entityOptional.isPresent()){
+        if(!entityOptional.isPresent()){
             throw new AccountDoesNotExistException("accountDoesNotExists");
         }
         PositionEntity position = entityOptional.get();
@@ -74,7 +74,7 @@ public class PositionServiceImpl implements PositionService {
     @Override
     public Optional<PositionDto> getPosition(String login) throws AccountDoesNotExistException{
         Optional<PositionEntity> positionEntity = locationRepository.findByAccount(login);
-        if(positionEntity.isPresent()){
+        if(!positionEntity.isPresent()){
             throw new AccountDoesNotExistException("accountDoesNotExists");
         }
         return Optional.of(PositionDto.convertEntityToDto(positionEntity.get()));

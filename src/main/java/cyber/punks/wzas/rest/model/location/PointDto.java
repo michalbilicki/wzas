@@ -15,7 +15,13 @@ public class PointDto {
     private double x;
     private double y;
 
+    public PointDto(){}
+
+
     public static PointDto convertToDto(Point point) {
+        if(point == null){
+            return null;
+        }
         return new PointDto(point.getX(), point.getY());
     }
 

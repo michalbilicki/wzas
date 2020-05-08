@@ -35,8 +35,8 @@ public class PositionDto {
 
     public static PositionEntity convertDtoToEntity(PositionDto positionDto, AccountEntity accountEntity) {
         PositionEntity positionEntity = new PositionEntity(accountEntity);
-        positionEntity.setDestination(PointDto.convertFromDto(positionDto.getDestination()));
-        positionEntity.setCurrent(PointDto.convertFromDto(positionDto.getCurrent()));
+        positionEntity.setDestination((positionDto.getDestination() != null) ? PointDto.convertFromDto(positionDto.getDestination()) : null);
+        positionEntity.setCurrent((positionDto.getCurrent() != null) ? PointDto.convertFromDto(positionDto.getCurrent()) : null);
         return positionEntity;
     }
 

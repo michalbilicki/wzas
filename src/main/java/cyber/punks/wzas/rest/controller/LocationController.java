@@ -2,7 +2,9 @@ package cyber.punks.wzas.rest.controller;
 
 
 import cyber.punks.wzas.exceptions.AccountDoesNotExistException;
+import cyber.punks.wzas.rest.model.account.AccountDto;
 import cyber.punks.wzas.rest.model.location.PointDto;
+import cyber.punks.wzas.services.interfaces.AccountService;
 import cyber.punks.wzas.services.interfaces.PositionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -19,9 +21,18 @@ public class LocationController {
     @Autowired
     private PositionService positionService;
 
+    @Autowired
+    private AccountService accountService;
+
     @PostMapping(value = "/add", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public void createPosition(@RequestBody PositionDto positionDto) {
+    public ResponseEntity<?> createPosition(@RequestBody PositionDto positionDto) {
+        try {
+            accountService.getAccount(positionDto.getAccount());
+        } catch (AccountDoesNotExistException e) {
+            return ResponseEntity.badRequest().build();
+        }
         positionService.addPosition(positionDto);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping(value = "/current/{login}", consumes = MediaType.APPLICATION_JSON_VALUE)

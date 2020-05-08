@@ -38,10 +38,10 @@ public class AccountServiceImpl implements AccountService {
     public void editLogin(String login, String newLogin) throws LoginAlreadyTakenException, AccountDoesNotExistException {
         Optional<AccountEntity> accountEntity = accountRepository.findByLogin(login);
 
-        if (accountEntity.isEmpty())
+        if (!accountEntity.isPresent())
             throw new AccountDoesNotExistException("accountDoesNotExists");
 
-        if (accountRepository.findByLogin(newLogin).isEmpty())
+        if (!accountRepository.findByLogin(newLogin).isPresent())
             accountEntity.get().setLogin(newLogin);
         else
             throw new LoginAlreadyTakenException("loginAlreadyTaken");
@@ -53,7 +53,7 @@ public class AccountServiceImpl implements AccountService {
     public void editPassword(String login, String password, String newPassword) throws AccountDoesNotExistException, IncorrectPasswordException {
         Optional<AccountEntity> accountEntity = accountRepository.findByLogin(login);
 
-        if (accountEntity.isEmpty())
+        if (!accountEntity.isPresent())
             throw new AccountDoesNotExistException("accountDoesNotExists");
 
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
@@ -70,7 +70,7 @@ public class AccountServiceImpl implements AccountService {
     public void removeAccount(String login) throws AccountDoesNotExistException {
         Optional<AccountEntity> accountEntity = accountRepository.findByLogin(login);
 
-        if (accountEntity.isEmpty())
+        if (!accountEntity.isPresent())
             throw new AccountDoesNotExistException("accountDoesNotExists");
 
         accountRepository.delete(accountEntity.get());
@@ -80,7 +80,7 @@ public class AccountServiceImpl implements AccountService {
     public Optional<AccountEntity> getAccount(String login) throws AccountDoesNotExistException {
         Optional<AccountEntity> accountEntity = accountRepository.findByLogin(login);
 
-        if (accountEntity.isEmpty())
+        if (!accountEntity.isPresent())
             throw new AccountDoesNotExistException("accountDoesNotExists");
 
         return accountEntity;
