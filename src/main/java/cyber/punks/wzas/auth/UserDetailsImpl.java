@@ -20,7 +20,6 @@ public class UserDetailsImpl implements UserDetails {
     public UserDetailsImpl(AccountEntity accountEntity){
         List<GrantedAuthority> grantedAuthorityList = new ArrayList<>();
         grantedAuthorityList.add(new SimpleGrantedAuthority(accountEntity.getRole()));
-
         login = accountEntity.getLogin();
         password = accountEntity.getPassword();
         authorities = grantedAuthorityList;

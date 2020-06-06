@@ -1,15 +1,20 @@
 package cyber.punks.wzas.auth.filter;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.util.JSONPObject;
+import cyber.punks.wzas.auth.LoginDto;
 import cyber.punks.wzas.auth.SecurityConstants;
 import cyber.punks.wzas.auth.UserDetailsImpl;
 import cyber.punks.wzas.entities.AccountEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.core.AuthenticationException;
@@ -56,6 +61,17 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withSubject(((UserDetailsImpl) auth.getPrincipal()).getUsername())
                 .withExpiresAt(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
                 .sign(HMAC512(SecurityConstants.SECRET.getBytes()));
-        res.addHeader(SecurityConstants.HEADER_STRING, SecurityConstants.TOKEN_PREFIX + token);
+
+        LoginDto loginDto = new LoginDto();
+        loginDto.setLogin(((UserDetailsImpl) auth.getPrincipal()).getUsername());
+        for(GrantedAuthority grantedAuthority : auth.getAuthorities()){
+            loginDto.getRoles().add(grantedAuthority.getAuthority());
+        }
+
+
+
+        Cookie cookie = new Cookie(SecurityConstants.COOKIE_NAME, SecurityConstants.TOKEN_PREFIX + token);
+        res.addCookie(cookie);
+        res.getWriter().write(new ObjectMapper().writeValueAsString(loginDto));
     }
 }

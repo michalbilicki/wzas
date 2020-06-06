@@ -12,8 +12,8 @@ import lombok.Data;
 public class PointDto {
 
     private final static GeometryFactory geometryFactory = new GeometryFactory(new PrecisionModel(), 4326);
-    private double x;
-    private double y;
+    private double latitude;
+    private double longitude;
 
     public PointDto(){}
 
@@ -26,6 +26,6 @@ public class PointDto {
     }
 
     public static Point convertFromDto(PointDto pointDto) {
-        return geometryFactory.createPoint(new Coordinate(pointDto.getX(), pointDto.getY()));
+        return geometryFactory.createPoint(new Coordinate(pointDto.getLatitude(), pointDto.getLongitude()));
     }
 }

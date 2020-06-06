@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 
 @RestController
-@RequestMapping("account")
+@RequestMapping("api/account")
 public class AccountController {
 
     @Autowired

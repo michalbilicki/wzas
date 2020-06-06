@@ -2,7 +2,9 @@ package cyber.punks.wzas.rest.controller;
 
 
 import cyber.punks.wzas.exceptions.AccountDoesNotExistException;
+import cyber.punks.wzas.exceptions.AccountHasPositionAlready;
 import cyber.punks.wzas.rest.model.account.AccountDto;
+import cyber.punks.wzas.rest.model.location.AllPositionDto;
 import cyber.punks.wzas.rest.model.location.PointDto;
 import cyber.punks.wzas.services.interfaces.AccountService;
 import cyber.punks.wzas.services.interfaces.PositionService;
@@ -15,7 +17,7 @@ import cyber.punks.wzas.rest.model.location.PositionDto;
 import java.util.List;
 
 @RestController
-@RequestMapping("location")
+@RequestMapping("api/location")
 public class LocationController {
 
     @Autowired
@@ -28,10 +30,10 @@ public class LocationController {
     public ResponseEntity<?> createPosition(@RequestBody PositionDto positionDto) {
         try {
             accountService.getAccount(positionDto.getAccount());
-        } catch (AccountDoesNotExistException e) {
+            positionService.addPosition(positionDto);
+        } catch (AccountHasPositionAlready | AccountDoesNotExistException e) {
             return ResponseEntity.badRequest().build();
         }
-        positionService.addPosition(positionDto);
         return ResponseEntity.ok().build();
     }
 
@@ -67,10 +69,22 @@ public class LocationController {
         }
     }
 
+    @DeleteMapping(value = "/{login}")
+    public ResponseEntity<?> removerPosition(@PathVariable String login) {
+        try {
+            positionService.removePosition(login);
+            return ResponseEntity.ok().build();
+        } catch (AccountDoesNotExistException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+
     @GetMapping(value = "/", produces = MediaType.APPLICATION_JSON_VALUE)
     public List<PositionDto> getAllPositions() {
         return positionService.getAllPositions();
     }
+
 
 
     @GetMapping(value = "/{login}", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -80,5 +94,10 @@ public class LocationController {
         } catch (AccountDoesNotExistException e) {
             return ResponseEntity.badRequest().build();
         }
+    }
+
+    @GetMapping(value = "/around/{login}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getPositionAroundUser(@PathVariable String login) {
+            return ResponseEntity.ok(positionService.getPositionsAroundPoints(login));
     }
 }
