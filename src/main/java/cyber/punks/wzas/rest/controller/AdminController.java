@@ -1,13 +1,11 @@
 package cyber.punks.wzas.rest.controller;
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.GeometryFactory;
-import com.vividsolutions.jts.geom.PrecisionModel;
+;
 import cyber.punks.wzas.services.interfaces.PositionService;
 import cyber.punks.wzas.utils.PointUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import com.vividsolutions.jts.geom.Point;
+
 
 
 @RestController
