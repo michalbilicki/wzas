@@ -16,6 +16,38 @@ import TableBody from "@material-ui/core/TableBody";
 import ButtonMenuComponent from "./ButtonMenuComponent";
 import Card from "@material-ui/core/Card";
 import axios from "axios";
+import withStyles from "@material-ui/core/styles/withStyles";
+import TextField from "@material-ui/core/TextField";
+
+
+const CssTextField = withStyles({
+    root: {
+        '& label.Mui-focused': {
+            color: 'white'
+        },
+        '& .MuiInput-underline:after': {
+            borderBottomColor: 'white',
+            color: 'white'
+        },
+        '& .MuiOutlinedInput-root': {
+            '& fieldset': {
+                borderColor: 'white',
+                color: 'white'
+            },
+            '&:hover fieldset': {
+                borderColor: 'white',
+                color: 'white'
+            },
+            '&.Mui-focused fieldset': {
+                borderColor: 'white',
+                color: 'white'
+            },
+        },
+        '&.MuiOutlinedInput-root' : {
+            color: 'white'
+        }
+    },
+})(TextField);
 
 class MainPageComponent extends React.Component {
     constructor(props) {
@@ -25,6 +57,7 @@ class MainPageComponent extends React.Component {
             removeLoading: false,
             createLoading: false,
             tableLoading: true,
+            amountOfPoints: 0
         }
     }
 
@@ -57,7 +90,7 @@ class MainPageComponent extends React.Component {
             createLoading: true
         });
 
-        axios.post('/api/admin/create-test-data?amount=30',null,{
+        axios.post(`/api/admin/create-test-data?amount=${this.state.amountOfPoints}`, null, {
             headers: this.getHeaders()
         })
             .then(response => {
@@ -76,7 +109,7 @@ class MainPageComponent extends React.Component {
             removeLoading: true
         });
 
-        axios.delete('/api/admin/delete',{
+        axios.delete('/api/admin/delete', {
             headers: this.getHeaders()
         }).then(response => {
             return response;
@@ -112,6 +145,12 @@ class MainPageComponent extends React.Component {
     clearLocalStorageAndCookies = () => {
         localStorage.clear();
         window.location.href = "/loginpage";
+    };
+
+    changeAmountOfPoints = (event) => {
+        this.setState({
+            amountOfPoints: event.target.value
+        })
     };
 
 
@@ -174,13 +213,17 @@ class MainPageComponent extends React.Component {
                                 <TableBody>
                                     {this.state.value.map((row) => (
                                         <TableRow key={row.account}>
-                                            {row.account === null ? 
-                                            <TableCell component="th" scope="row">empty</TableCell> :
-                                            <TableCell component="th" scope="row">{row.account}</TableCell>}
+                                            {row.account === null ?
+                                                <TableCell component="th" scope="row">empty</TableCell> :
+                                                <TableCell component="th" scope="row">{row.account}</TableCell>}
                                             <TableCell align="left">{row.current.latitude}</TableCell>
                                             <TableCell align="left">{row.current.longitude}</TableCell>
-                                            <TableCell align="left">{row.destination.latitude}</TableCell>
-                                            <TableCell align="left">{row.destination.longitude}</TableCell>
+                                            {row.destination === null ? <TableCell align="left">empty</TableCell>
+                                                : <TableCell align="left">{row.destination.latitude}</TableCell>
+                                            }
+                                            {row.destination === null ? <TableCell align="left">empty</TableCell>
+                                                : <TableCell align="left">{row.destination.longitude}</TableCell>
+                                            }
                                         </TableRow>
                                     ))}
                                 </TableBody>
@@ -192,6 +235,29 @@ class MainPageComponent extends React.Component {
                             </Typography>
                         </Card>
                     }
+                        <CssTextField
+                            label={"Amount of test points"}
+                            value={this.state.amountOfPoints}
+                            name={"amountOfPoints"}
+                            fullWidth
+                            variant="outlined"
+                            margin={"normal"}
+                            onChange={this.changeAmountOfPoints}
+                            style={{
+                                borderColor: "white"
+                            }}
+                            InputProps={{
+                                style: {
+                                    color: "white",
+                                    borderColor: 'red',
+                                }
+                            }}
+                            InputLabelProps={{
+                                style: {
+                                    color: "white"
+                                }
+                            }}/>
+
                 </Grid>
             </Grid>
         );

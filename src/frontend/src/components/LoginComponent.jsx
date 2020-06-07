@@ -51,7 +51,7 @@ class LoginComponent extends React.Component {
                     <Container maxWidth="sm" m="auto">
                         <div className="login-form">
                             <Typography component="h1" variant="h4">
-                                Logowanie
+                                Sign in
                             </Typography>
                             <form onSubmit={this.handleSubmit}>
                                 <TextField style={{background: "lightgrey"}}
@@ -73,7 +73,7 @@ class LoginComponent extends React.Component {
                                            fullWidth
                                            onChange={this.handleChange}
                                            name="password"
-                                           label="Hasło"
+                                           label="Password"
                                            required
                                 />
                                 <Button
@@ -82,7 +82,7 @@ class LoginComponent extends React.Component {
                                     fullWidth
                                     variant="contained"
                                     color={"primary"}>
-                                    Login
+                                    Sigin in
                                 </Button>
                             </form>
                         </div>

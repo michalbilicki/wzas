@@ -102,9 +102,9 @@ public class LocationController {
         }
     }
 
+
     @GetMapping(value = "/around", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getPositionAroundUser() {
-        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-            return ResponseEntity.ok(positionService.getPositionsAroundPoints((String) principal));
+    public ResponseEntity<?> getPositionAroundUser(@RequestParam double latitude, @RequestParam double longitude) {
+        return ResponseEntity.ok(positionService.getPositionsAroundPoints(latitude,longitude));
     }
 }

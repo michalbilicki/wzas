@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.transaction.Transactional;
+import java.util.List;
 import java.util.Optional;
 
 public interface LocationRepository extends JpaRepository<PositionEntity, Long> {
@@ -18,4 +19,7 @@ public interface LocationRepository extends JpaRepository<PositionEntity, Long> 
     @Modifying
     @Query(value = "DELETE FROM PositionEntity p WHERE p.accountEntity IS NULL")
     void deleteAllTestPositions();
+
+    @Query(value = "SELECT * FROM position WHERE ST_DWithin(current, ST_SetSRID(ST_MakePoint(?1, ?2),4326), ?3)", nativeQuery = true)
+    List<PositionEntity> findByRadius(double x, double y, double radius);
 }

@@ -28,7 +28,7 @@ public interface PositionService {
 
     List<PositionDto> getAllPositions();
 
-    AllPositionDto getPositionsAroundPoints(String login);
+    AllPositionDto getPositionsAroundPoints(double x, double y);
 
     void addTestPosition(Point position, Point destination);
 

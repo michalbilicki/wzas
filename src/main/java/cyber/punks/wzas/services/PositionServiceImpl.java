@@ -37,7 +37,7 @@ public class PositionServiceImpl implements PositionService {
     @Override
     public void addPosition(PositionDto positionDto) throws AccountHasPositionAlready {
         Optional<PositionEntity> check = locationRepository.findByAccount(positionDto.getAccount());
-        if(check.isPresent()){
+        if (check.isPresent()) {
             throw new AccountHasPositionAlready("accountHasAlreadPosition");
         }
         Optional<AccountEntity> account = accountRepository.findByLogin(positionDto.getAccount());
@@ -48,7 +48,7 @@ public class PositionServiceImpl implements PositionService {
     @Override
     public void setCurrentPosition(PointDto currentPosition, String login) throws AccountDoesNotExistException {
         Optional<PositionEntity> entityOptional = locationRepository.findByAccount(login);
-        if(!entityOptional.isPresent()){
+        if (!entityOptional.isPresent()) {
             Optional<AccountEntity> accountEntity = accountRepository.findByLogin(login);
 
             if (!accountEntity.isPresent())
@@ -70,7 +70,7 @@ public class PositionServiceImpl implements PositionService {
     @Override
     public void setDestinationPosition(PointDto destinationPosition, String login) throws AccountDoesNotExistException {
         Optional<PositionEntity> entityOptional = locationRepository.findByAccount(login);
-        if(!entityOptional.isPresent()){
+        if (!entityOptional.isPresent()) {
             throw new AccountDoesNotExistException("accountDoesNotExists");
         }
 
@@ -82,9 +82,9 @@ public class PositionServiceImpl implements PositionService {
     }
 
     @Override
-    public void removeDestinationPosition(String login) throws AccountDoesNotExistException{
+    public void removeDestinationPosition(String login) throws AccountDoesNotExistException {
         Optional<PositionEntity> entityOptional = locationRepository.findByAccount(login);
-        if(!entityOptional.isPresent()){
+        if (!entityOptional.isPresent()) {
             throw new AccountDoesNotExistException("accountDoesNotExists");
         }
         PositionEntity position = entityOptional.get();
@@ -93,18 +93,18 @@ public class PositionServiceImpl implements PositionService {
     }
 
     @Override
-    public void removePosition(String login) throws AccountDoesNotExistException{
+    public void removePosition(String login) throws AccountDoesNotExistException {
         Optional<PositionEntity> entityOptional = locationRepository.findByAccount(login);
-        if(!entityOptional.isPresent()){
+        if (!entityOptional.isPresent()) {
             throw new AccountDoesNotExistException("accountDoesNotExists");
         }
         locationRepository.delete(entityOptional.get());
     }
 
     @Override
-    public Optional<PositionDto> getPosition(String login) throws AccountDoesNotExistException{
+    public Optional<PositionDto> getPosition(String login) throws AccountDoesNotExistException {
         Optional<PositionEntity> positionEntity = locationRepository.findByAccount(login);
-        if(!positionEntity.isPresent()){
+        if (!positionEntity.isPresent()) {
             throw new AccountDoesNotExistException("accountDoesNotExists");
         }
         return Optional.of(PositionDto.convertEntityToDto(positionEntity.get()));
@@ -119,41 +119,22 @@ public class PositionServiceImpl implements PositionService {
     }
 
     @Override
-    public AllPositionDto getPositionsAroundPoints(String login) {
-        Optional<PositionEntity> positionEntity = locationRepository.findByAccount(login);
-        PositionDto positionDto = PositionDto.convertEntityToDto(positionEntity.get());
-
+    public AllPositionDto getPositionsAroundPoints(double x, double y) {
         List<CoordinateDto> currents = new ArrayList<>();
         List<CoordinateDto> destinations = new ArrayList<>();
 
 
-        List<PositionDto> allPositions = locationRepository.findAll()
+        List<PositionDto> allPositions = locationRepository.findByRadius(x, y, RestConstatnts.RADIUS)
                 .stream()
                 .map(PositionDto::convertEntityToDto)
                 .collect(Collectors.toList());
 
 
-        for (PositionDto position: allPositions) {
-            if(!position.getAccount().equals(positionEntity.get().getAccountEntity().getLogin())){
-                if(position.getCurrent() != null){
-                    if(pointIsAround(position.getCurrent(), positionDto.getCurrent())){
-                        currents.add(new CoordinateDto(position.getAccount(), position.getCurrent()));
-                    }
-                } else {
-                    currents.add(new CoordinateDto(position.getAccount(), null));
-                }
-                if(positionDto.getDestination() != null){
-                    if(position.getDestination() != null){
-                        if(pointIsAround(position.getDestination(), positionDto.getDestination())){
-                            destinations.add(new CoordinateDto(position.getAccount(), position.getDestination()));
-                        }
-                    } else {
-                        destinations.add(new CoordinateDto(position.getAccount(), null));
-                    }
-                }
-            }
-        }
+        for (PositionDto position : allPositions) {
+            currents.add(new CoordinateDto(position.getAccount(), position.getCurrent()));
+            destinations.add(new CoordinateDto(position.getAccount(), position.getDestination()));
 
+        }
 
         return new AllPositionDto(currents, destinations);
     }
@@ -170,11 +151,11 @@ public class PositionServiceImpl implements PositionService {
     }
 
 
-    private boolean pointIsAround(PointDto point, PointDto centerPoint){
-        if(!(point.getLatitude() > centerPoint.getLatitude() - RestConstatnts.RADIUS) || !(point.getLatitude() < centerPoint.getLatitude() + RestConstatnts.RADIUS)){
+    private boolean pointIsAround(PointDto point, PointDto centerPoint) {
+        if (!(point.getLatitude() > centerPoint.getLatitude() - RestConstatnts.RADIUS) || !(point.getLatitude() < centerPoint.getLatitude() + RestConstatnts.RADIUS)) {
             return false;
         }
-        if(!(point.getLongitude() > centerPoint.getLongitude() - RestConstatnts.RADIUS) || !(point.getLongitude() < centerPoint.getLongitude() + RestConstatnts.RADIUS)){
+        if (!(point.getLongitude() > centerPoint.getLongitude() - RestConstatnts.RADIUS) || !(point.getLongitude() < centerPoint.getLongitude() + RestConstatnts.RADIUS)) {
             return false;
         }
         return true;
@@ -183,7 +164,7 @@ public class PositionServiceImpl implements PositionService {
 
     private Point convertToPoint(PointDto pointDto) throws AccountDoesNotExistException {
         Point point = PointDto.convertFromDto(pointDto);
-        if(point.getX() == 0 && point.getY() == 0){
+        if (point.getX() == 0 && point.getY() == 0) {
             throw new AccountDoesNotExistException("accountDoesNotExists");
         }
         return point;
