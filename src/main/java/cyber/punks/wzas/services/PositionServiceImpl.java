@@ -49,7 +49,15 @@ public class PositionServiceImpl implements PositionService {
     public void setCurrentPosition(PointDto currentPosition, String login) throws AccountDoesNotExistException {
         Optional<PositionEntity> entityOptional = locationRepository.findByAccount(login);
         if(!entityOptional.isPresent()){
-            throw new AccountDoesNotExistException("accountDoesNotExists");
+            Optional<AccountEntity> accountEntity = accountRepository.findByLogin(login);
+
+            if (!accountEntity.isPresent())
+                throw new AccountDoesNotExistException("accountDoesNotExists");
+
+            Point point = this.convertToPoint(currentPosition);
+            PositionEntity positionEntity = new PositionEntity(accountEntity.get(), point, null);
+            locationRepository.save(positionEntity);
+            return;
         }
 
         PositionEntity position = entityOptional.get();

@@ -174,9 +174,8 @@ class MainPageComponent extends React.Component {
                                 <TableBody>
                                     {this.state.value.map((row) => (
                                         <TableRow key={row.account}>
-                                            {row.account === undefined ||
-                                            <TableCell component="th" scope="row">empty</TableCell>}
-                                            {row.account !== undefined ||
+                                            {row.account === null ? 
+                                            <TableCell component="th" scope="row">empty</TableCell> :
                                             <TableCell component="th" scope="row">{row.account}</TableCell>}
                                             <TableCell align="left">{row.current.latitude}</TableCell>
                                             <TableCell align="left">{row.current.longitude}</TableCell>
