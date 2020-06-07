@@ -70,8 +70,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                 .withAudience(loginDto.getRoles().get(0))
                 .sign(HMAC512(SecurityConstants.SECRET.getBytes()));
 
-        Cookie cookie = new Cookie(SecurityConstants.COOKIE_NAME, SecurityConstants.TOKEN_PREFIX + token);
-        res.addCookie(cookie);
         res.getWriter().write(new ObjectMapper().writeValueAsString(loginDto));
+        res.addHeader(SecurityConstants.HEADER_NAME, SecurityConstants.TOKEN_PREFIX + token);
     }
 }

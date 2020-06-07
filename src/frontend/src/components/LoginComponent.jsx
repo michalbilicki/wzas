@@ -5,7 +5,7 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
 import Typography from "@material-ui/core/Typography";
-import {getFetch, postFetch} from "../utils/fetchUtils";
+import axios from "axios";
 
 
 class LoginComponent extends React.Component {
@@ -27,20 +27,21 @@ class LoginComponent extends React.Component {
     handleSubmit = (event) => {
         event.preventDefault();
         const body = {
-            "login": this.state.login,
-            "password": this.state.password
+            login: this.state.login,
+            password: this.state.password
         };
 
-        postFetch('/login', body).then(response => {
-            if (response.ok) {
-                return response;
-            } else if (response.status === 401) {
-                window.alert("Błędny login lub hasło")
-            }
-        }).then(response => response.json())
-            .then(data => {
-            this.props.onSuccessfulLogin(data);
-        }).catch(e => {})
+        axios.post('/login', body)
+            .then(response => {
+                console.log(response);
+                if (response.status === 200) {
+                    this.props.onSuccessfulLogin(response.data, response.headers.authorization);
+                } else {
+                    window.alert("Błędny login lub hasło")
+                }
+            }).catch(e => {
+        });
+
     };
 
     render() {

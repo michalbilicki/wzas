@@ -1,13 +1,9 @@
 import * as React from "react";
 
 import '../resources/css/main.css'
-import {deleteFetch, getFetch, postFetch} from "../utils/fetchUtils";
 import AppBar from "@material-ui/core/AppBar";
 import Paper from "@material-ui/core/Paper";
 import TableCell from "@material-ui/core/TableCell";
-import CircularProgress from "@material-ui/core/CircularProgress";
-import LinearProgress from "@material-ui/core/LinearProgress";
-import Menu from "@material-ui/core/Menu";
 import Grid from "@material-ui/core/Grid";
 import Toolbar from "@material-ui/core/Toolbar";
 import Button from "@material-ui/core/Button";
@@ -17,10 +13,9 @@ import Table from "@material-ui/core/Table";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import TableBody from "@material-ui/core/TableBody";
-import Cookies from "js-cookie"
 import ButtonMenuComponent from "./ButtonMenuComponent";
 import Card from "@material-ui/core/Card";
-import TextField from "@material-ui/core/TextField";
+import axios from "axios";
 
 class MainPageComponent extends React.Component {
     constructor(props) {
@@ -33,59 +28,65 @@ class MainPageComponent extends React.Component {
         }
     }
 
+    getHeaders = () => {
+        return {
+            "authorization": localStorage.getItem("TOKEN")
+        }
+    };
+
     componentDidMount() {
         this.loadData();
     }
 
     loadData = () => {
-        getFetch('/api/location/')
+        axios.get('/api/location/', {
+            headers: this.getHeaders()
+        })
             .then(response => {
-                return response;
-            })
-            .then(response => response.json())
-            .then(data => {
                 this.setState({
-                    value: data
-                });
-            })
-            .finally(() => {
-                this.setState({tableLoading: false});
-                console.log(this.state.value);
-            })
+                    value: response.data
+                })
+            }).finally(() => {
+            this.setState({tableLoading: false});
+            console.log(this.state.value);
+        });
     };
 
     createTestPoints = () => {
         this.setState({
             createLoading: true
         });
-        postFetch('/api/admin/create-test-data?amount=30')
+
+        axios.post('/api/admin/create-test-data?amount=30',null,{
+            headers: this.getHeaders()
+        })
             .then(response => {
-                return response;
-            })
-            .finally(() => {
-                this.loadData();
-                this.setState({
-                    createLoading: false,
-                    setAnchorEl: null
-                });
-            })
+                return response
+            }).finally(() => {
+            this.loadData();
+            this.setState({
+                createLoading: false,
+                setAnchorEl: null
+            });
+        });
     };
 
     deleteTestPoints = () => {
         this.setState({
             removeLoading: true
         });
-        deleteFetch('/api/admin/delete')
-            .then(response => {
-                return response;
-            })
-            .finally(() => {
-                this.loadData();
-                this.setState({
-                    removeLoading: false,
-                    setAnchorEl: null
-                });
-            })
+
+        axios.delete('/api/admin/delete',{
+            headers: this.getHeaders()
+        }).then(response => {
+            return response;
+        }).finally(() => {
+            this.loadData();
+            this.setState({
+                removeLoading: false,
+                setAnchorEl: null
+            });
+        });
     };
 
     handleChange = (newValue) => {
@@ -110,8 +111,6 @@ class MainPageComponent extends React.Component {
 
     clearLocalStorageAndCookies = () => {
         localStorage.clear();
-        Cookies.remove("JREMEMBERMEID", {path: process.env.PUBLIC_URL});
-        Cookies.remove("JREMEMBERMEID");
         window.location.href = "/loginpage";
     };
 

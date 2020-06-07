@@ -2,7 +2,6 @@ import React from "react";
 import {BrowserRouter, Redirect, Route, Switch, withRouter} from "react-router-dom";
 import {urls} from "./const/Urls";
 import LoginComponent from "./components/LoginComponent";
-import Cookies from "js-cookie"
 import MainPageComponent from "./components/MainPageComponent";
 import './resources/css/main.css'
 
@@ -12,7 +11,8 @@ class App extends React.Component {
         super(props);
     }
 
-    handleSuccessfulLogin = (data) => {
+    handleSuccessfulLogin = (data, header) => {
+        localStorage.setItem("TOKEN", header);
         localStorage.setItem("USER_NAME", data.login);
         localStorage.setItem("ROLE", data.roles[0]);
         this.props.history.push(urls.mainPage);
@@ -20,8 +20,6 @@ class App extends React.Component {
 
     clearLocalStorageAndCookies = () => {
         localStorage.clear();
-        Cookies.remove("Authorization", {path: process.env.PUBLIC_URL});
-        Cookies.remove("Authorization");
         window.location.href = urls.login;
     };
 
@@ -34,7 +32,7 @@ class App extends React.Component {
 
 
     render() {
-        if (Cookies.get("Authorization") && localStorage.getItem("ROLE") === "ROLE_ADMIN") {
+        if (localStorage.getItem("ROLE") === "ROLE_ADMIN") {
             this.checkLocalStorage();
             return (
                 <div className={"background"}>
