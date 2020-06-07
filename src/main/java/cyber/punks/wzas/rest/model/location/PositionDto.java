@@ -27,7 +27,11 @@ public class PositionDto {
 
     public static PositionDto convertEntityToDto(PositionEntity positionEntity) {
         PositionDto accountDto = new PositionDto();
-        accountDto.account = positionEntity.getAccountEntity().getLogin();
+        if (positionEntity.getAccountEntity() != null) {
+            accountDto.account = positionEntity.getAccountEntity().getLogin();
+        } else {
+            accountDto.account = null;
+        }
         accountDto.current = PointDto.convertToDto(positionEntity.getCurrent());
         accountDto.destination = PointDto.convertToDto(positionEntity.getDestination());
         return accountDto;

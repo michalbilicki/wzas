@@ -34,7 +34,7 @@ class App extends React.Component {
 
 
     render() {
-        if (Cookies.get("Authorization")) {
+        if (Cookies.get("Authorization") && localStorage.getItem("ROLE") === "ROLE_ADMIN") {
             this.checkLocalStorage();
             return (
                 <div className={"background"}>

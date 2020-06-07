@@ -5,6 +5,9 @@ import cyber.punks.wzas.exceptions.AccountHasPositionAlready;
 import cyber.punks.wzas.rest.model.location.AllPositionDto;
 import cyber.punks.wzas.rest.model.location.PointDto;
 import cyber.punks.wzas.rest.model.location.PositionDto;
+import com.vividsolutions.jts.geom.Point;
+
+
 
 import java.util.List;
 import java.util.Optional;
@@ -26,4 +29,8 @@ public interface PositionService {
     List<PositionDto> getAllPositions();
 
     AllPositionDto getPositionsAroundPoints(String login);
+
+    void addTestPosition(Point position, Point destination);
+
+    void deleteAllTesPositions();
 }

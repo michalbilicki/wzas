@@ -30,16 +30,19 @@ public class PositionEntity {
     @Setter
     private Point destination;
 
-    @OneToOne(optional = false, cascade = CascadeType.REMOVE)
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "id_account", referencedColumnName = "id")
-    @NotNull
-    @Valid
     @Getter
     private AccountEntity accountEntity;
 
 
     public PositionEntity() {
 
+    }
+
+    public PositionEntity(Point current, Point destination){
+        this.current = current;
+        this.destination = destination;
     }
 
     public PositionEntity(AccountEntity accountEntity, Point current, Point destination) {

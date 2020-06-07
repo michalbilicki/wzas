@@ -1,6 +1,7 @@
 package cyber.punks.wzas.rest.controller;
 
 
+import cyber.punks.wzas.entities.AccountEntity;
 import cyber.punks.wzas.exceptions.AccountDoesNotExistException;
 import cyber.punks.wzas.exceptions.AccountHasPositionAlready;
 import cyber.punks.wzas.rest.model.account.AccountDto;
@@ -11,9 +12,11 @@ import cyber.punks.wzas.services.interfaces.PositionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import cyber.punks.wzas.rest.model.location.PositionDto;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -27,52 +30,53 @@ public class LocationController {
     private AccountService accountService;
 
     @PostMapping(value = "/add", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> createPosition(@RequestBody PositionDto positionDto) {
+    public ResponseEntity<?> createPosition(@RequestBody @Valid PositionDto positionDto) {
         try {
-            accountService.getAccount(positionDto.getAccount());
             positionService.addPosition(positionDto);
-        } catch (AccountHasPositionAlready | AccountDoesNotExistException e) {
+        } catch (AccountHasPositionAlready e) {
             return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().build();
     }
 
-    @PutMapping(value = "/current/{login}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> editCurrentPosition(@PathVariable String login,
-                                    @RequestBody PointDto positionDto) {
+    @PutMapping(value = "/current", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> editCurrentPosition(@RequestBody PointDto positionDto) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         try {
-            positionService.setCurrentPosition(positionDto, login);
+            positionService.setCurrentPosition(positionDto, (String) principal);
             return ResponseEntity.ok().build();
         } catch (AccountDoesNotExistException e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @PutMapping(value = "/destination/{login}", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> editDestinationPosition(@PathVariable String login,
-                                        @RequestBody PointDto positionDto) {
+    @PutMapping(value = "/destination/edit", consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> editDestinationPosition(@RequestBody PointDto positionDto) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         try {
-            positionService.setDestinationPosition(positionDto, login);
+            positionService.setDestinationPosition(positionDto, (String) principal);
             return ResponseEntity.ok().build();
         } catch (AccountDoesNotExistException e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @DeleteMapping(value = "/destination/{login}")
-    public ResponseEntity<?> removerDestinationPosition(@PathVariable String login) {
+    @DeleteMapping(value = "/destination/delete")
+    public ResponseEntity<?> removerDestinationPosition() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         try {
-            positionService.removeDestinationPosition(login);
+            positionService.removeDestinationPosition((String) principal);
             return ResponseEntity.ok().build();
         } catch (AccountDoesNotExistException e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @DeleteMapping(value = "/{login}")
-    public ResponseEntity<?> removerPosition(@PathVariable String login) {
+    @DeleteMapping(value = "/delete")
+    public ResponseEntity<?> removerPosition() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         try {
-            positionService.removePosition(login);
+            positionService.removePosition((String) principal);
             return ResponseEntity.ok().build();
         } catch (AccountDoesNotExistException e) {
             return ResponseEntity.badRequest().build();
@@ -87,17 +91,19 @@ public class LocationController {
 
 
 
-    @GetMapping(value = "/{login}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<PositionDto> getPositionByLogin(@PathVariable String login) {
+    @GetMapping(value = "/own", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<PositionDto> getPositionByLogin() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         try {
-            return ResponseEntity.ok(positionService.getPosition(login).get());
+            return ResponseEntity.ok(positionService.getPosition((String) principal).get());
         } catch (AccountDoesNotExistException e) {
             return ResponseEntity.badRequest().build();
         }
     }
 
-    @GetMapping(value = "/around/{login}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getPositionAroundUser(@PathVariable String login) {
-            return ResponseEntity.ok(positionService.getPositionsAroundPoints(login));
+    @GetMapping(value = "/around", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getPositionAroundUser() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            return ResponseEntity.ok(positionService.getPositionsAroundPoints((String) principal));
     }
 }

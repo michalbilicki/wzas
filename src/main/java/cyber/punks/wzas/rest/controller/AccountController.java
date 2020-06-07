@@ -7,6 +7,7 @@ import cyber.punks.wzas.exceptions.LoginAlreadyTakenException;
 import cyber.punks.wzas.services.interfaces.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import cyber.punks.wzas.rest.model.account.AccountDto;
@@ -23,10 +24,10 @@ public class AccountController {
     private AccountService accountService;
 
     @PutMapping(value = "/change-login", consumes = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> changeLogin(@RequestHeader(name = "login") String login,
-                                         @RequestHeader(name = "new-login") String newLogin) {
+    public ResponseEntity<?> changeLogin(@RequestHeader(name = "new-login") String newLogin) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         try {
-            accountService.editLogin(login, newLogin);
+            accountService.editLogin((String) principal, newLogin);
             return ResponseEntity.ok().build();
         } catch (LoginAlreadyTakenException | AccountDoesNotExistException e) {
             return ResponseEntity.badRequest().build();
@@ -45,10 +46,11 @@ public class AccountController {
         }
     }
 
-    @GetMapping(value = "/{login}", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<AccountDto> getAccountByLogin(@PathVariable String login) {
+    @GetMapping(value = "/own", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<AccountDto> getAccount() {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         try {
-            return ResponseEntity.ok(AccountDto.convertEntityToDto(accountService.getAccount(login).get()));
+            return ResponseEntity.ok(AccountDto.convertEntityToDto(accountService.getAccount((String) principal).get()));
         } catch (AccountDoesNotExistException e) {
             return ResponseEntity.badRequest().build();
         }
@@ -62,10 +64,11 @@ public class AccountController {
                 .collect(Collectors.toList());
     }
 
-    @DeleteMapping(value = "/delete/{login}")
+    @DeleteMapping(value = "/delete")
     public ResponseEntity<?> removeAccount(@PathVariable String login) {
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         try {
-            accountService.removeAccount(login);
+            accountService.removeAccount((String) principal);
             return ResponseEntity.ok().build();
         } catch (AccountDoesNotExistException e) {
             return ResponseEntity.badRequest().build();

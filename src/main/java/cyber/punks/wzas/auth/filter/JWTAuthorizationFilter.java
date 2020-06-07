@@ -4,6 +4,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import cyber.punks.wzas.auth.SecurityConstants;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 
@@ -15,6 +17,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import com.auth0.jwt.JWT;
 
@@ -29,9 +32,12 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
                                     HttpServletResponse res,
                                     FilterChain chain) throws IOException, ServletException {
         Cookie authCookie = null;
-        for(Cookie cookie : req.getCookies()){
-            if(cookie.getName().equals(SecurityConstants.COOKIE_NAME)){
-                authCookie = cookie;
+        Cookie [] cookies = req.getCookies();
+        if(cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (cookie.getName().equals(SecurityConstants.COOKIE_NAME)) {
+                    authCookie = cookie;
+                }
             }
         }
 
@@ -60,8 +66,18 @@ public class JWTAuthorizationFilter extends BasicAuthenticationFilter {
                     .verify(token.replace(SecurityConstants.TOKEN_PREFIX, ""))
                     .getSubject();
 
+            List<String> roles = JWT.require(Algorithm.HMAC512(SecurityConstants.SECRET.getBytes()))
+                    .build()
+                    .verify(token.replace(SecurityConstants.TOKEN_PREFIX, ""))
+                    .getAudience();
+
+
+            List<GrantedAuthority> authorities = new ArrayList<>();
+            if(roles != null  && roles.size() != 0 ) {
+                authorities.add(new SimpleGrantedAuthority(roles.get(0)));
+            }
             if (user != null) {
-                return new UsernamePasswordAuthenticationToken(user, null, new ArrayList<>());
+                return new UsernamePasswordAuthenticationToken(user, null, authorities);
             }
             return null;
         }

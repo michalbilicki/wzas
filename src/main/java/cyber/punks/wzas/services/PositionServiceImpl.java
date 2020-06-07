@@ -1,6 +1,7 @@
 package cyber.punks.wzas.services;
 
 
+import com.vividsolutions.jts.geom.Point;
 import cyber.punks.wzas.exceptions.AccountDoesNotExistException;
 import cyber.punks.wzas.exceptions.AccountHasPositionAlready;
 import cyber.punks.wzas.rest.RestConstatnts;
@@ -40,7 +41,6 @@ public class PositionServiceImpl implements PositionService {
             throw new AccountHasPositionAlready("accountHasAlreadPosition");
         }
         Optional<AccountEntity> account = accountRepository.findByLogin(positionDto.getAccount());
-
         PositionEntity position = PositionDto.convertDtoToEntity(positionDto, account.get());
         locationRepository.save(position);
     }
@@ -53,8 +53,9 @@ public class PositionServiceImpl implements PositionService {
         }
 
         PositionEntity position = entityOptional.get();
-        System.out.println(position);
-        position.setCurrent(PointDto.convertFromDto(currentPosition));
+        Point point = this.convertToPoint(currentPosition);
+
+        position.setCurrent(point);
         locationRepository.save(position);
     }
 
@@ -66,6 +67,8 @@ public class PositionServiceImpl implements PositionService {
         }
 
         PositionEntity position = entityOptional.get();
+        Point point = this.convertToPoint(destinationPosition);
+
         position.setDestination(PointDto.convertFromDto(destinationPosition));
         locationRepository.save(position);
     }
@@ -147,6 +150,17 @@ public class PositionServiceImpl implements PositionService {
         return new AllPositionDto(currents, destinations);
     }
 
+    @Override
+    public void addTestPosition(Point position, Point destination) {
+        PositionEntity positionEntity = new PositionEntity(position, destination);
+        locationRepository.save(positionEntity);
+    }
+
+    @Override
+    public void deleteAllTesPositions() {
+        locationRepository.deleteAllTestPositions();
+    }
+
 
     private boolean pointIsAround(PointDto point, PointDto centerPoint){
         if(!(point.getLatitude() > centerPoint.getLatitude() - RestConstatnts.RADIUS) || !(point.getLatitude() < centerPoint.getLatitude() + RestConstatnts.RADIUS)){
@@ -158,5 +172,13 @@ public class PositionServiceImpl implements PositionService {
         return true;
     }
 
+
+    private Point convertToPoint(PointDto pointDto) throws AccountDoesNotExistException {
+        Point point = PointDto.convertFromDto(pointDto);
+        if(point.getX() == 0 && point.getY() == 0){
+            throw new AccountDoesNotExistException("accountDoesNotExists");
+        }
+        return point;
+    }
 
 }

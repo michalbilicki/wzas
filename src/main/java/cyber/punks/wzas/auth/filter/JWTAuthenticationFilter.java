@@ -11,6 +11,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -22,6 +23,7 @@ import com.auth0.jwt.JWT;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import static com.auth0.jwt.algorithms.Algorithm.HMAC512;
 
@@ -40,6 +42,8 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
         try {
             AccountEntity creds = new ObjectMapper()
                     .readValue(req.getInputStream(), AccountEntity.class);
+
+
             return authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             creds.getLogin(),
@@ -57,10 +61,6 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                             FilterChain chain,
                                             Authentication auth) throws IOException, ServletException {
 
-        String token = JWT.create()
-                .withSubject(((UserDetailsImpl) auth.getPrincipal()).getUsername())
-                .withExpiresAt(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
-                .sign(HMAC512(SecurityConstants.SECRET.getBytes()));
 
         LoginDto loginDto = new LoginDto();
         loginDto.setLogin(((UserDetailsImpl) auth.getPrincipal()).getUsername());
@@ -68,7 +68,11 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
             loginDto.getRoles().add(grantedAuthority.getAuthority());
         }
 
-
+        String token = JWT.create()
+                .withSubject(((UserDetailsImpl) auth.getPrincipal()).getUsername())
+                .withExpiresAt(new Date(System.currentTimeMillis() + SecurityConstants.EXPIRATION_TIME))
+                .withAudience(loginDto.getRoles().get(0))
+                .sign(HMAC512(SecurityConstants.SECRET.getBytes()));
 
         Cookie cookie = new Cookie(SecurityConstants.COOKIE_NAME, SecurityConstants.TOKEN_PREFIX + token);
         res.addCookie(cookie);
