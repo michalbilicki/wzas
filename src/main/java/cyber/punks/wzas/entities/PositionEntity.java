@@ -19,12 +19,12 @@ public class PositionEntity {
     private Long id;
 
 
-    @Column(name = "current", nullable = false, unique = false, columnDefinition = "geometry(Point,4326)")
+    @Column(name = "current", unique = false, columnDefinition = "geometry(Point,4326)")
     @Getter
     @Setter
     private Point current;
 
-    @Column(name = "destination", nullable = true, unique = false, columnDefinition = "geometry(Point,4326)")
+    @Column(name = "destination", unique = false, columnDefinition = "geometry(Point,4326)")
     @Getter
     @Setter
     private Point destination;
