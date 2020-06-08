@@ -98,10 +98,7 @@ public class PositionServiceImpl implements PositionService {
         if (!entityOptional.isPresent()) {
             throw new AccountDoesNotExistException("accountDoesNotExists");
         }
-        PositionEntity positionEntity = entityOptional.get();
-        positionEntity.setCurrent(null);
-        positionEntity.setDestination(null);
-        locationRepository.save(positionEntity);
+        locationRepository.delete(entityOptional.get());
     }
 
     @Override

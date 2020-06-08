@@ -29,7 +29,7 @@ public class PositionEntity {
     @Setter
     private Point destination;
 
-    @OneToOne(cascade = CascadeType.REMOVE)
+    @OneToOne()
     @JoinColumn(name = "id_account", referencedColumnName = "id")
     @Getter
     private AccountEntity accountEntity;
