@@ -154,10 +154,12 @@ public class PositionServiceImpl implements PositionService {
     @Override
     public boolean getWaring(String login) throws AccountException {
         AccountEntity accountEntity = accountRepository.findByLogin(login).orElseThrow(AccountException::new);
-        Point userDestination = accountEntity.getPositionEntity().getDestination();
-        if(userDestination != null) {
-            int counter = locationRepository.findByRadius(userDestination.getX(), userDestination.getY(), RestConstatnts.WARNING_RADIUS).size();
-            return counter >= 10;
+        if(accountEntity.getPositionEntity() != null) {
+            Point userDestination = accountEntity.getPositionEntity().getDestination();
+            if (userDestination != null) {
+                int counter = locationRepository.findByRadius(userDestination.getX(), userDestination.getY(), RestConstatnts.WARNING_RADIUS).size();
+                return counter >= 10;
+            }
         }
         return false;
     }
