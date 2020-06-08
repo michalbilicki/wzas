@@ -20,7 +20,6 @@ public class PositionEntity {
 
 
     @Column(name = "current", nullable = false, unique = false, columnDefinition = "geometry(Point,4326)")
-    @NotNull
     @Getter
     @Setter
     private Point current;

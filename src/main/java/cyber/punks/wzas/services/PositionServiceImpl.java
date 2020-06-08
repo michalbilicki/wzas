@@ -94,11 +94,13 @@ public class PositionServiceImpl implements PositionService {
 
     @Override
     public void removePosition(String login) throws AccountDoesNotExistException {
-        Optional<PositionEntity> entityOptional = locationRepository.findByAccount(login);
+       Optional<PositionEntity> entityOptional = locationRepository.findByAccount(login);
         if (!entityOptional.isPresent()) {
             throw new AccountDoesNotExistException("accountDoesNotExists");
         }
-        locationRepository.delete(entityOptional.get());
+        entityOptional.get().setDestination(null);
+        entityOptional.get().setCurrent(null);
+        locationRepository.save(entityOptional.get());
     }
 
     @Override
