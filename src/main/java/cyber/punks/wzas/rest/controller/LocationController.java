@@ -108,7 +108,7 @@ public class LocationController {
     }
 
     @GetMapping(value = "/warning", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> getWarning(@RequestParam double latitude, @RequestParam double longitude){
+    public ResponseEntity<?> getWarning(){
         String login = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         WarningDto warningDto = new WarningDto();
         try {
