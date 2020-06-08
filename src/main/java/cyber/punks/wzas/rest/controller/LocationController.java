@@ -1,22 +1,21 @@
 package cyber.punks.wzas.rest.controller;
 
 
-import cyber.punks.wzas.entities.AccountEntity;
+import cyber.punks.wzas.auth.SecurityConstants;
 import cyber.punks.wzas.exceptions.AccountDoesNotExistException;
 import cyber.punks.wzas.exceptions.AccountHasPositionAlready;
-import cyber.punks.wzas.rest.model.account.AccountDto;
-import cyber.punks.wzas.rest.model.location.AllPositionDto;
 import cyber.punks.wzas.rest.model.location.PointDto;
+import cyber.punks.wzas.rest.model.location.WarningDto;
 import cyber.punks.wzas.services.interfaces.AccountService;
 import cyber.punks.wzas.services.interfaces.PositionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import cyber.punks.wzas.rest.model.location.PositionDto;
 
+import javax.security.auth.login.AccountException;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -106,5 +105,18 @@ public class LocationController {
     @GetMapping(value = "/around", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getPositionAroundUser(@RequestParam double latitude, @RequestParam double longitude) {
         return ResponseEntity.ok(positionService.getPositionsAroundPoints(latitude,longitude));
+    }
+
+    @GetMapping(value = "/warning", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> getWarning(@RequestParam double latitude, @RequestParam double longitude){
+        String login = (String) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        WarningDto warningDto = new WarningDto();
+        try {
+            warningDto.setWarning(positionService.getWaring(login));
+            return ResponseEntity.ok(warningDto);
+        } catch (AccountException e) {
+            return ResponseEntity.badRequest().build();
+        }
+
     }
 }

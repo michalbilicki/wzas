@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import javax.security.auth.login.AccountException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -150,15 +151,15 @@ public class PositionServiceImpl implements PositionService {
         locationRepository.deleteAllTestPositions();
     }
 
-
-    private boolean pointIsAround(PointDto point, PointDto centerPoint) {
-        if (!(point.getLatitude() > centerPoint.getLatitude() - RestConstatnts.RADIUS) || !(point.getLatitude() < centerPoint.getLatitude() + RestConstatnts.RADIUS)) {
-            return false;
+    @Override
+    public boolean getWaring(String login) throws AccountException {
+        AccountEntity accountEntity = accountRepository.findByLogin(login).orElseThrow(AccountException::new);
+        Point userDestination = accountEntity.getPositionEntity().getDestination();
+        if(userDestination != null) {
+            int counter = locationRepository.findByRadius(userDestination.getX(), userDestination.getY(), RestConstatnts.WARNING_RADIUS).size();
+            return counter >= 10;
         }
-        if (!(point.getLongitude() > centerPoint.getLongitude() - RestConstatnts.RADIUS) || !(point.getLongitude() < centerPoint.getLongitude() + RestConstatnts.RADIUS)) {
-            return false;
-        }
-        return true;
+        return false;
     }
 
 
