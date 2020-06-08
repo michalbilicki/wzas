@@ -95,7 +95,7 @@ public class PositionServiceImpl implements PositionService {
 
     @Override
     public void removePosition(String login) throws AccountDoesNotExistException {
-       Optional<PositionEntity> entityOptional = locationRepository.findByAccount(login);
+        Optional<PositionEntity> entityOptional = locationRepository.findByAccount(login);
         if (!entityOptional.isPresent()) {
             throw new AccountDoesNotExistException("accountDoesNotExists");
         }
@@ -153,13 +153,11 @@ public class PositionServiceImpl implements PositionService {
 
     @Override
     public boolean getWaring(String login) throws AccountException {
-        AccountEntity accountEntity = accountRepository.findByLogin(login).orElseThrow(AccountException::new);
-        if(accountEntity.getPositionEntity() != null) {
-            Point userDestination = accountEntity.getPositionEntity().getDestination();
-            if (userDestination != null) {
-                int counter = locationRepository.findByRadius(userDestination.getX(), userDestination.getY(), RestConstatnts.WARNING_RADIUS).size();
-                return counter >= 10;
-            }
+        PositionEntity positionEntity = locationRepository.findByAccount(login).orElseThrow(AccountException::new);
+        Point userDestination = positionEntity.getDestination();
+        if (userDestination != null) {
+            int counter = locationRepository.findByRadius(userDestination.getX(), userDestination.getY(), RestConstatnts.WARNING_RADIUS).size();
+            return counter >= 10;
         }
         return false;
     }
