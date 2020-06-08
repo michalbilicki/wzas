@@ -157,7 +157,7 @@ public class PositionServiceImpl implements PositionService {
         if (positionEntity != null) {
             Point userDestination = positionEntity.getDestination();
             if (userDestination != null) {
-                int counter = locationRepository.findByRadius(userDestination.getX(), userDestination.getY(), RestConstatnts.WARNING_RADIUS).size();
+                int counter = locationRepository.findInRadiusByDestination(userDestination.getX(), userDestination.getY(), RestConstatnts.WARNING_RADIUS).size();
                 return counter >= 10;
             }
         }

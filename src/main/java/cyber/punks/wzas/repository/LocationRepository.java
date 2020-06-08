@@ -22,4 +22,7 @@ public interface LocationRepository extends JpaRepository<PositionEntity, Long> 
 
     @Query(value = "SELECT * FROM position WHERE ST_DWithin(current, ST_SetSRID(ST_MakePoint(?1, ?2),4326), ?3)", nativeQuery = true)
     List<PositionEntity> findByRadius(double x, double y, double radius);
+
+    @Query(value = "SELECT * FROM position WHERE ST_DWithin(destination, ST_SetSRID(ST_MakePoint(?1, ?2),4326), ?3)", nativeQuery = true)
+    List<PositionEntity> findInRadiusByDestination(double x, double y, double radius);
 }
